@@ -34,7 +34,7 @@ def go_down(disance, dx, dy, path):
     return dx, dy
 
 
-def get_path(wire, comp=[]):
+def get_path(wire):
     dx, dy = 0, 0
     path = []
     for move in wire:
