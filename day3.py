@@ -48,9 +48,7 @@ def get_path(wire):
             dx, dy = go_down(int(move[1:]), dx, dy, path)
     return path
 
-path1 = get_path(wire1)
-path2 = get_path(wire2)
-intersections = set(path1).intersection(path2)
+intersections = set(get_path(wire1)).intersection(get_path(wire2))
 dist = 999999999999999
 for i in intersections:
     if i[0]+i[1] < dist:

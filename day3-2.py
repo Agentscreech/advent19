@@ -6,7 +6,6 @@ for line in data:
 wire1 = m[0]
 wire2 = m[1]
 
-
 def go_right(disance, dx, dy, path):
     for _ in range(disance):
         dx += 1
@@ -49,13 +48,11 @@ def get_path(wire):
             dx, dy = go_down(int(move[1:]), dx, dy, path)
     return path
 
-
 path1 = get_path(wire1)
 path2 = get_path(wire2)
-intersections = set(path1).intersection(path2)
+intersections = set(get_path(wire1)).intersection(get_path(wire2))
 dist = 9999999999999
 for i in intersections:
     if path1.index(i) + path2.index(i) < dist:
         dist = path1.index(i) + path2.index(i)
-
 print(dist+2)
