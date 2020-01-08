@@ -32,13 +32,12 @@ def get_distance(node):
     while node.parent:
         node = node.parent
         if node.distance:
+            #we know the distance of it's parent, so don't need to continue
             first.distance = hops + node.distance + 1
             return first.distance
         hops += 1
     first.distance = hops
     return hops
-
-
 
 def find_orbits(planets):
     # BFS and count the number of hops from node to COM to get total indirect orbits
@@ -67,14 +66,13 @@ def find_intersection(node, santa_path):
         path.append(node.name)
     return path, node.name
 
-
 def find_transfers(planets):
     #map path from santa to com
     santa_path = get_path(planets["SAN"])
+    #find the common planet
     path, intersection = find_intersection(planets["YOU"], santa_path)
+    #add the path length from common planet to santa + comment planet to you
     return len(santa_path[:santa_path.index(intersection)]) + len(path[:path.index(intersection)])
-
-
 
 
 print(find_orbits(planets), "total indirect orbits")
