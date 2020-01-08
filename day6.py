@@ -1,6 +1,7 @@
 from helpers import *
 from collections import defaultdict, deque
 
+
 class Node():
     def __init__(self, name):
         self.parent = None
@@ -13,7 +14,7 @@ planets = defaultdict()
 
 data = get_input(6)
 
-#build tree
+# build tree
 for line in data:
     orbit = line[:-1].split(")")
     if orbit[0] not in planets:
@@ -23,6 +24,7 @@ for line in data:
     planets[orbit[0]].children.append(planets[orbit[1]])
     if planets[orbit[1]].parent is None:
         planets[orbit[1]].parent = planets[orbit[0]]
+
 
 def get_distance(node):
     hops = 0
@@ -36,16 +38,44 @@ def get_distance(node):
     first.distance = hops
     return hops
 
-#BFS and count the number of hops from node to COM to get total indirect orbits
-counter = 0
-queue = deque([planets["COM"]])
 
-while queue:
-    planet = queue.pop()
-    if planet.children:
-        for child in planet.children:
-            queue.append(child)
-    counter += get_distance(planet)
 
-print(counter)
+def find_orbits(planets):
+    # BFS and count the number of hops from node to COM to get total indirect orbits
+    counter = 0
+    queue = deque([planets["COM"]])
 
+    while queue:
+        planet = queue.pop()
+        if planet.children:
+            for child in planet.children:
+                queue.append(child)
+        counter += get_distance(planet)
+    return counter
+
+def get_path(node):
+    path = []
+    while node.parent:
+        node = node.parent
+        path.append(node.name)
+    return path
+
+def find_intersection(node, santa_path):
+    path = []
+    while node.name not in santa_path:
+        node = node.parent
+        path.append(node.name)
+    return path, node.name
+
+
+def find_transfers(planets):
+    #map path from santa to com
+    santa_path = get_path(planets["SAN"])
+    path, intersection = find_intersection(planets["YOU"], santa_path)
+    return len(santa_path[:santa_path.index(intersection)]) + len(path[:path.index(intersection)])
+
+
+
+
+print(find_orbits(planets), "total indirect orbits")
+print(find_transfers(planets), "total transfers to Santa")
