@@ -1,7 +1,6 @@
 from helpers import *
 from collections import defaultdict, deque
 
-
 class Node():
     def __init__(self, name):
         self.parent = None
@@ -47,8 +46,6 @@ while queue:
         for child in planet.children:
             queue.append(child)
     counter += get_distance(planet)
-
-
 
 print(counter)
 
