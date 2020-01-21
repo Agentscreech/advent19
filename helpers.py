@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 def get_input(day):
     return open(f"inputs/day{day}.txt", "r")
     
@@ -92,6 +94,8 @@ class Amp():
                 raise ValueError(f"bad opcode: {code}")
 
 #classic mode
+
+
 def intcode(opcode, command):
     def set_mode(mode, i):
         if mode == "1":
@@ -163,6 +167,103 @@ def intcode(opcode, command):
             else:
                 opcode[int(opcode[i+3])] = "0"
             i += 4
+            continue
+        else:
+            raise ValueError(f"bad opcode: {code}")
+    return output
+
+
+def intcode_classic(opcode, command):
+    base = 0
+    mem = defaultdict(lambda: "0")
+    for i, instruction in enumerate(opcode):
+        mem[str(i)] = instruction
+
+    def set_mode(mode, i):
+        i = str(i)
+        if mode == "1":
+            return int(mem[i])
+        if mode == "0":
+            return int(mem[mem[i]])
+        if mode == "2":
+            print(f"returning key {str(base+int(mem[i]))}")
+            return mem[str(base+int(mem[i]))]
+
+    def get_modes(opcode):
+        if len(opcode) == 1:
+            return int(opcode), "0", "0", "0"
+        if len(opcode) == 3:
+            return int(opcode[-1]), opcode[-3], "0", "0"
+        if len(opcode) == 4:
+            return int(opcode[-1]), opcode[-3], opcode[-4], "0"
+        if len(opcode) == 5:
+            return int(opcode[-1]), opcode[-3], opcode[-4], opcode[-5]
+    input_used = 0
+    i = 0
+    output = []
+    while i < len(opcode):
+        if int(opcode[i]) == 99:
+            break
+        code, p1, p2, p3 = get_modes(opcode[i])
+        if code == 1:
+            #add i+1 (either value or refval) ot i+2 (either value or refval) to the index value at i+3
+            mem[set_mode(p3, i+3)] = str(set_mode(p1, i+1) +
+                                         set_mode(p2, i+2))
+            i += 4
+            continue
+        if code == 2:
+            #mulitply i+1 (either value or refval) ot i+2 (either value or refval) to the index value at i+3
+            mem[opcode[i+3]] = str(set_mode(p1, i+1)
+                                   * set_mode(p2, i+2))
+            i += 4
+            continue
+        if code == 3:
+            #set index i+1 to an input
+            if p1 == '2':
+                mem[str(base+int(opcode[i+1]))] = str(command[input_used])
+                i += 2
+                continue
+            else:
+                mem[opcode[i+1]] = command[input_used]
+                input_used += 1
+                i += 2
+                continue
+        if code == 4:
+            # print(set_mode(p1, i+1))
+            output.append(set_mode(p1, i+1))
+            i += 2
+            continue
+        if code == 5:
+            if set_mode(p1, i+1) != 0:
+                i = set_mode(p2, i+2)
+                continue
+            i += 3
+            continue
+        if code == 6:
+            if set_mode(p1, i+1) == 0:
+                i = set_mode(p2, i+2)
+                continue
+            i += 3
+            continue
+        if code == 7:
+            if set_mode(p1, i+1) < set_mode(p2, i+2):
+                mem[opcode[i+3]] = "1"
+            else:
+                mem[opcode[i+3]] = "0"
+            i += 4
+            continue
+        if code == 8:
+            if set_mode(p1, i+1) == set_mode(p2, i+2):
+                mem[opcode[i+3]] = "1"
+            else:
+                mem[opcode[i+3]] = "0"
+            i += 4
+            continue
+        if code == 9:
+            #increase base by mode of i+1
+
+            base += int(set_mode(p1, i+1))
+            i += 2
             continue
         else:
             raise ValueError(f"bad opcode: {code}")
